@@ -1,0 +1,12 @@
+categories
+└── products
+    └── order_items
+        └── order_item_notes
+empty_table
+users
+├── audit_log
+└── orders
+    └── order_items (↻)
+
+# self-references:
+categories (↻)
