@@ -1,2 +1,1 @@
-from tree.api.dialects import postgres
-from tree.api.dialects import sqlite
+from tree.api.dialects import postgres, sqlite
