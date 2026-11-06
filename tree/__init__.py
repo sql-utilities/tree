@@ -34,12 +34,12 @@ class SqlTree:
 
             self.schema = self.dialect.introspect(self.__url, args["schema"])
             if not self.schema: return
-            if not self.schema.tables: log_err(f"no tables found in schema '{args['schema']}'")
+            if not self.schema.tables: return log_err(f"no tables found in schema '{args['schema']}'")
 
             self.printer = Printer(self.schema)
 
             self.output = self.printer.render(args["format"])
-            if not self.output: return
+            if self.output is None: return
 
             write(self.output)
             self.status = 0
