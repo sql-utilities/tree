@@ -20,6 +20,7 @@ def quote(name: str) -> str:
 class SQLite(Dialect):
     def __primary_key(self, connection: sqlite3.Connection, table: str) -> list:
         rows = connection.execute(f"PRAGMA table_info({quote(table)})").fetchall()
+        # pk is 1-based position, 0 means not a key
         return [row[1] for row in sorted((row for row in rows if row[5]), key=lambda row: row[5])]
 
     def __foreign_keys(self, connection: sqlite3.Connection, table: str) -> list:
@@ -42,15 +43,18 @@ class SQLite(Dialect):
         path = url[len(PREFIX):] if url.startswith(PREFIX) else url
         if not isfile(path): return log_err(f"SQLite file not found: {path}")
 
+        connection = None
         try:
             connection = sqlite3.connect(Path(path).resolve().as_uri() + "?mode=ro", uri=True)
             with connection:
                 rows = connection.execute("SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'").fetchall()
                 tables = {row[0] for row in rows}
                 foreign_keys = [fk for table in sorted(tables) for fk in self.__foreign_keys(connection, table)]
-            connection.close()
         except sqlite3.DatabaseError as err:
             return log_err(f"SQLite error: {err}")
+        finally:
+            if connection is not None:
+                connection.close()
 
         log_ok(f"opened SQLite file: {path}")
         return Schema(tables=tables, foreign_keys=foreign_keys, namespace="main")
