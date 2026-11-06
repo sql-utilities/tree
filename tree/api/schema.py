@@ -14,6 +14,6 @@ class ForeignKey:
 
 @dataclass
 class Schema:
-    tables: set
-    foreign_keys: list
+    tables: set[str]
+    foreign_keys: list[ForeignKey]
     namespace: str | None = None
